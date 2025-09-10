@@ -1,0 +1,170 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* MBF Inventory Design System - Dark theme with green accents */
+
+@layer base {
+  :root {
+    /* Dark theme base colors */
+    --background: 0 0% 8%;
+    --foreground: 0 0% 95%;
+
+    /* Card components */
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 95%;
+
+    /* Interactive elements */
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 95%;
+
+    /* Primary - Green theme */
+    --primary: 142 76% 36%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 142 76% 42%;
+    --primary-glow: 142 76% 36%;
+
+    /* Secondary - Dark gray */
+    --secondary: 0 0% 20%;
+    --secondary-foreground: 0 0% 95%;
+    --secondary-hover: 0 0% 25%;
+
+    /* Muted elements */
+    --muted: 0 0% 16%;
+    --muted-foreground: 0 0% 65%;
+
+    /* Accent - Orange for scanning elements */
+    --accent: 24 100% 50%;
+    --accent-foreground: 0 0% 100%;
+    --accent-hover: 24 100% 56%;
+    --accent-glow: 24 100% 50%;
+
+    /* Status colors */
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    --warning: 45 100% 60%;
+    --warning-foreground: 0 0% 10%;
+
+    /* Borders and inputs */
+    --border: 0 0% 24%;
+    --input: 0 0% 16%;
+    --input-border: 0 0% 30%;
+    --ring: 142 76% 36%;
+
+    /* Border radius */
+    --radius: 0.75rem;
+
+    /* Custom gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-hover)));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-hover)));
+    --gradient-surface: linear-gradient(135deg, hsl(var(--card)), hsl(var(--muted)));
+
+    /* Shadows and glows */
+    --shadow-primary: 0 8px 32px -8px hsl(var(--primary) / 0.3);
+    --shadow-accent: 0 8px 32px -8px hsl(var(--accent) / 0.3);
+    --shadow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.4);
+    --glow-primary: 0 0 24px hsl(var(--primary-glow) / 0.4);
+    --glow-accent: 0 0 24px hsl(var(--accent-glow) / 0.4);
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    /* Sidebar (keeping for compatibility) */
+    --sidebar-background: 0 0% 12%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 142 76% 36%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 16%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 24%;
+    --sidebar-ring: 142 76% 36%;
+  }
+
+  .dark {
+    /* Same as root since we're using dark theme by default */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    min-height: 100vh;
+  }
+
+  /* Custom scrollbar for dark theme */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-muted;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground;
+  }
+}
+
+@layer components {
+  /* Touch-friendly button base */
+  .btn-touch {
+    @apply min-h-[48px] min-w-[48px] px-6 py-3 text-base font-medium;
+    @apply rounded-xl border transition-all duration-300;
+    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
+    @apply active:scale-95;
+  }
+
+  /* Primary action buttons */
+  .btn-primary {
+    @apply btn-touch bg-gradient-to-r from-primary to-primary-hover text-primary-foreground border-primary;
+    @apply hover:shadow-lg hover:shadow-primary/20;
+    @apply active:from-primary-hover active:to-primary;
+  }
+
+  /* Secondary buttons */
+  .btn-secondary {
+    @apply btn-touch bg-secondary text-secondary-foreground border-border;
+    @apply hover:bg-secondary-hover hover:shadow-md;
+  }
+
+  /* Accent buttons (for scanning) */
+  .btn-accent {
+    @apply btn-touch bg-gradient-to-r from-accent to-accent-hover text-accent-foreground border-accent;
+    @apply hover:shadow-lg hover:shadow-accent/20;
+    @apply active:from-accent-hover active:to-accent;
+  }
+
+  /* Input styling */
+  .input-field {
+    @apply w-full px-4 py-3 text-base bg-input border border-input-border rounded-xl;
+    @apply text-foreground placeholder:text-muted-foreground;
+    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
+    @apply transition-all duration-200;
+  }
+
+  /* Card styling */
+  .card-surface {
+    @apply bg-card border border-border rounded-2xl shadow-card;
+    @apply transition-all duration-300;
+  }
+
+  /* Glow effects for active states */
+  .glow-primary {
+    box-shadow: var(--glow-primary);
+  }
+
+  .glow-accent {
+    box-shadow: var(--glow-accent);
+  }
+}
