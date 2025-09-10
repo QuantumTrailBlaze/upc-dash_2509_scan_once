@@ -15,7 +15,8 @@ interface BarcodeScannerProps {
 const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, onClose, isOpen }) => {
   const scannerRef = useRef<HTMLDivElement>(null);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [isProcessingScan, setIsProcessingScan] = useState(false); // New state to prevent multiple webhook calls per detection
+  // Use a ref for isProcessingScan to keep onDetectedCallback stable
+  const isProcessingScanRef = useRef(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -24,21 +25,22 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, onClose, isOpen
     if (isInitialized) {
       Quagga.stop();
       setIsInitialized(false);
-      setIsProcessingScan(false); // Reset processing state
+      isProcessingScanRef.current = false; // Reset processing state via ref
     }
     onClose();
   }, [isInitialized, onClose]);
 
   // Define the onDetected callback as a stable function
+  // It should not depend on isProcessingScan state directly, but use the ref
   const onDetectedCallback = useCallback(async (result: any) => {
-    if (isProcessingScan) {
+    if (isProcessingScanRef.current) { // Check ref's current value
       // Already processing a scan, ignore subsequent detections for this session
       return;
     }
 
     const code = result.codeResult.code;
     if (code) {
-      setIsProcessingScan(true); // Start processing this scan
+      isProcessingScanRef.current = true; // Start processing this scan via ref
 
       // 1. Pass the scanned code to the parent component
       onScan(code);
@@ -106,7 +108,7 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, onClose, isOpen
         handleClose();
       }
     }
-  }, [onScan, user, isProcessingScan, handleClose, toast]); // Dependencies for useCallback
+  }, [onScan, user, handleClose, toast]); // Dependencies for useCallback: isProcessingScanRef is not needed here
 
   useEffect(() => {
     if (isOpen && !isInitialized) {
@@ -119,10 +121,10 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, onClose, isOpen
         Quagga.offDetected(onDetectedCallback);
         Quagga.stop();
         setIsInitialized(false);
-        setIsProcessingScan(false); // Ensure processing state is reset on cleanup
+        isProcessingScanRef.current = false; // Ensure processing state is reset on cleanup
       }
     };
-  }, [isOpen, isInitialized, onDetectedCallback]); // Add onDetectedCallback to dependencies
+  }, [isOpen, isInitialized, onDetectedCallback]); // onDetectedCallback is now stable
 
   const initializeScanner = async () => {
     if (!scannerRef.current) {
@@ -134,6 +136,15 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, onClose, isOpen
       });
       handleClose(); // Close if target is missing
       return;
+    }
+
+    // Ensure Quagga is stopped and listeners are cleared before re-initializing
+    // This is a crucial step to prevent listener accumulation
+    if (isInitialized) {
+      Quagga.offDetected(onDetectedCallback); // Remove any existing listener
+      Quagga.stop(); // Stop any running scanner
+      setIsInitialized(false); // Reset state
+      isProcessingScanRef.current = false; // Reset processing flag
     }
 
     try {
@@ -184,7 +195,7 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, onClose, isOpen
         });
       });
 
-      // Attach the stable onDetected callback
+      // Attach the stable onDetected callback ONLY AFTER successful initialization
       Quagga.onDetected(onDetectedCallback);
 
     } catch (error) {
